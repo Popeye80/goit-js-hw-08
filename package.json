@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Popeye80/goit-js-hw-08#readme",
   "dependencies": {
+    "@vimeo/player": "^2.16.4",
     "lodash.throttle": "^4.1.1",
     "simplelightbox": "^2.10.3"
   },
