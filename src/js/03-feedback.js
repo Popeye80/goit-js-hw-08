@@ -1,36 +1,39 @@
-import throttle from "lodash.throttle";
 
-const STORAGE_KEY = 'feedback-form-state';
-const refs = {
-  form: document.querySelector('.feedback-form'),
-  textarea: document.querySelector('.feedback-form textarea'),
-  input: document.querySelector('input'),
-};
-const formData = {};
+import throttle from 'lodash.throttle';
 
-populateTextarea();
+const feedbackForm = document.querySelector('.feedback-form');
+const formInput = {};
 
-refs.form.addEventListener('input', throttle(onTextareaInput, 500));
+initForm();
 
-refs.form.addEventListener('submit', evt => {
+function initForm() {
+let storage = JSON.parse(localStorage.getItem('feedback-form-state'));
+  if (storage) {
+    Object.entries(storage).forEach(([name, value]) => {
+      formInput[name] = value;
+      feedbackForm.elements[name].value = value;
+    }) 
+    };
+}
+
+feedbackForm.addEventListener("input", throttle((evt) => {
+  formInput[evt.target.name] = evt.target.value;
+  localStorage.setItem("feedback-form-state", JSON.stringify(formInput))
+}, 500));
+
+const handleSubmit = evt => {
   evt.preventDefault();
-  evt.currentTarget.reset();
-  localStorage.removeItem(STORAGE_KEY);
-});
 
-function onTextareaInput(evt) {
-  formData[evt.target.name] = evt.target.value;
-  const stringifiedData = JSON.stringify(formData);
-  localStorage.setItem(STORAGE_KEY, stringifiedData);
-}
-
-function populateTextarea() {
-  const savedMessage = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-  if (savedMessage === null) {
-       return;
+  if (feedbackForm.elements.email.value === "" || feedbackForm.elements.message.value === "") {
+  return alert("Please fill in all the fields!");
   }
-    
-  refs.textarea.value = savedMessage['message'] || '';
-  refs.input.value = savedMessage['email'] || '';
-}
+
+  console.log(JSON.parse(localStorage.getItem("feedback-form-state")));
+  localStorage.removeItem("feedback-form-state");
+  formInput.message = '';
+  formInput.email = '';
+  feedbackForm.elements.email.value = '';
+  feedbackForm.elements.message.value = '';
+};
+
+feedbackForm.addEventListener("submit", handleSubmit);
